@@ -1,1 +1,1 @@
-# e6156-demo-flask
+# demo-flask
