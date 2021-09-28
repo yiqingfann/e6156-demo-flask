@@ -13,4 +13,4 @@ class UserResource(BaseRDBApplicationResource):
 
     @classmethod
     def get_data_resource_info(cls):
-        return 'aaaaaF21E6156', 'users'
+        return 'e6156_hw0', 'users'

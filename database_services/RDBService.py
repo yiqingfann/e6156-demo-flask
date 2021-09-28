@@ -86,7 +86,7 @@ class RDBService:
     @classmethod
     def find_by_template(cls, db_schema, table_name, template, field_list):
 
-        wc,args = RDBService._get_where_clause_args(template)
+        wc,args = RDBService.get_where_clause_args(template)
 
         conn = RDBService._get_db_connection()
         cur = conn.cursor()
