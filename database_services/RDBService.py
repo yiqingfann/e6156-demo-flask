@@ -116,6 +116,35 @@ class RDBService:
 
         sql_stmt = "insert into " + db_schema + "." + table_name + " " + cols_clause + \
             " " + vals_clause
+        
+        res = RDBService.run_sql(sql_stmt, args)
+        return res
 
-        res = RDBService._run_sql(sql_stmt, args)
+    @classmethod
+    def update(cls, db_name, table_name, template, new_data):
+        sql_stmt = f"UPDATE {db_name}.{table_name} SET "
+        args = []
+
+        for k,v in new_data.items():
+            sql_stmt += f"{k}=%s, "
+            args.append(v)
+        sql_stmt = sql_stmt.rstrip(', ')
+
+        where_clause, where_args = RDBService.get_where_clause_args(template)
+        sql_stmt = f"{sql_stmt}{where_clause}"
+        args.extend(where_args)
+
+        res = RDBService.run_sql(sql_stmt, args)
+        return res
+    
+    @classmethod
+    def delete(cls, db_name, table_name, template):
+        sql_stmt = f"DELETE from {db_name}.{table_name}"
+        args = []
+
+        where_clause, where_args = RDBService.get_where_clause_args(template)
+        sql_stmt += where_clause
+        args.extend(where_args)
+
+        res = RDBService.run_sql(sql_stmt, args)
         return res
