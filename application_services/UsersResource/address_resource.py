@@ -20,12 +20,13 @@ class AddressResource(BaseApplicationResource):
 
     @classmethod
     def get_data_resource_info(cls):
-        return {'db_name':cls.db_name, 'table_name':cls.table_name}
+        return cls.db_name, cls.table_name
 
     @classmethod
     def create_address(cls, data):
-        RDBService.create(cls.db_name, cls.table_name, data)
-        return "Successfully created address!"
+        res, id = RDBService.create(cls.db_name, cls.table_name, data)
+        msg = "Successfully created address!"
+        return msg, id
     
     @classmethod
     def get_addresses(cls, address_id=None):

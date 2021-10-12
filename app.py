@@ -15,6 +15,7 @@ logger.setLevel(logging.INFO)
 app = Flask(__name__)
 CORS(app)
 
+# ------------------- routing functions -------------------
 
 @app.route('/')
 def hello_world():
@@ -22,35 +23,49 @@ def hello_world():
 
 @app.route('/users', methods = ['POST'])
 def create_user():
-    data = request.get_json()
-    res = UserResource.create_user(data)
-    return res
+    user_data = request.get_json()
+    msg, id = create_user_helper(user_data)
+    return msg
 
 @app.route('/users', methods = ['GET'])
 @app.route('/users/<user_id>', methods = ['GET'])
 def get_users(user_id=None):
-    # res = UserResource.get_by_template(None)
     res = UserResource.get_users(user_id)
     rsp = Response(json.dumps(res, default=str), status=200, content_type="application/json")
     return rsp
 
 @app.route('/users/<user_id>', methods = ['PUT'])
 def update_user(user_id):
-    data = request.get_json()
-    res = UserResource.update_user(user_id, data)
-    return res
+    user_data = request.get_json()
+    msg = update_user_helper(user_id, user_data)
+    return msg
 
 @app.route('/users/<user_id>', methods = ['DELETE'])
 def delete_user(user_id):
     res = UserResource.delete_user(user_id)
     return res
 
+@app.route('/users/<user_id>/address', methods = ['GET'])
+def get_user_address(user_id):
+    res = UserResource.get_users(user_id)
+    rsp = get_addresses(res[0]['addressID'])
+    return rsp
+
+@app.route('/users/<user_id>/address', methods = ['POST'])
+def create_address_for_user(user_id):
+    addr_data = request.get_json()
+    msg, addr_id = AddressResource.create_address(addr_data)
+
+    user_data = {'addressID': addr_id}
+    UserResource.update_user(user_id, user_data)
+
+    return "Successfully created address for user!"
 
 @app.route('/addresses', methods = ['POST'])
 def create_address():
     data = request.get_json()
-    res = AddressResource.create_address(data)
-    return res
+    msg, id = AddressResource.create_address(data)
+    return msg
 
 @app.route('/addresses', methods = ['GET'])
 @app.route('/addresses/<address_id>', methods = ['GET'])
@@ -69,6 +84,35 @@ def update_address(address_id):
 def delete_address(address_id):
     res = AddressResource.delete_address(address_id)
     return res
+
+@app.route('/addresses/<address_id>/users', methods = ['GET'])
+def get_all_users_under_address(address_id):
+    template = {'addressID': address_id}
+    res = UserResource.get_by_template(template)
+    rsp = Response(json.dumps(res, default=str), status=200, content_type="application/json")
+    return rsp
+
+@app.route('/addresses/<address_id>/users', methods = ['POST'])
+def create_user_under_address(address_id):
+    user_data = request.get_json()
+    msg, user_id = create_user_helper(user_data)
+
+    user_data = {'addressID': address_id}
+    msg = update_user_helper(user_id, user_data)
+    
+    return "Successfully created user under address!"
+
+# ------------------- helper functions -------------------
+
+def create_user_helper(user_data):
+    msg, user_id = UserResource.create_user(user_data)
+    return msg, user_id
+
+def update_user_helper(user_id, user_data):
+    msg = UserResource.update_user(user_id, user_data)
+    return msg
+
+# ------------------- main function -------------------
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)

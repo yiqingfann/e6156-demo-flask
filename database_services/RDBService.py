@@ -47,6 +47,23 @@ class RDBService:
         return res
 
     @classmethod
+    def run_sql_and_get_id(cls, sql_statement, args, fetch=False):
+
+        conn = RDBService._get_db_connection()
+
+        try:
+            cur = conn.cursor()
+            res = cur.execute(sql_statement, args=args)
+            id = cur.lastrowid
+            if fetch:
+                res = cur.fetchall()
+        except Exception as e:
+            conn.close()
+            raise e
+
+        return res, id
+
+    @classmethod
     def get_by_prefix(cls, db_schema, table_name, column_name, value_prefix):
 
         conn = RDBService._get_db_connection()
@@ -117,8 +134,8 @@ class RDBService:
         sql_stmt = "insert into " + db_schema + "." + table_name + " " + cols_clause + \
             " " + vals_clause
         
-        res = RDBService.run_sql(sql_stmt, args)
-        return res
+        res, id = RDBService.run_sql_and_get_id(sql_stmt, args)
+        return res, id
 
     @classmethod
     def update(cls, db_name, table_name, template, new_data):
