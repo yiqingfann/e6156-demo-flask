@@ -31,8 +31,13 @@ class AddressResource(BaseApplicationResource):
     @classmethod
     def get_addresses(cls, address_id=None):
         template = {'ID': address_id} if address_id else None
-        result = RDBService.find_by_template(cls.db_name, cls.table_name, template, None)
-        return result
+        addresses = RDBService.find_by_template(cls.db_name, cls.table_name, template, None)
+        for address in addresses:
+            address['links'] = [
+                {'rel': "self", "href": f"/addresses/{address['ID']}"},
+                {'rel': "users", "href": f"/addresses/{address['ID']}/users"}
+            ]
+        return addresses
     
     @classmethod
     def update_address(cls, address_id, data):

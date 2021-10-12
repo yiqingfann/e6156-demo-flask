@@ -28,8 +28,13 @@ class UserResource(BaseRDBApplicationResource):
     @classmethod
     def get_users(cls, user_id=None):
         template = {'ID': user_id} if user_id else None
-        result = RDBService.find_by_template(cls.db_name, cls.table_name, template, None)
-        return result
+        users = RDBService.find_by_template(cls.db_name, cls.table_name, template, None)
+        for user in users:
+            user['links'] = [
+                {'rel': "self", "href": f"/users/{user['ID']}"},
+                {'rel': "address", "href": f"/addresses/{user['addressID']}"}
+            ]
+        return users
 
     @classmethod
     def update_user(cls, user_id, data):
