@@ -30,24 +30,24 @@ class AddressResource(BaseApplicationResource):
     
     @classmethod
     def get_addresses(cls, address_id=None):
-        template = {'ID': address_id} if address_id else None
+        template = {'addressID': address_id} if address_id else None
         addresses = RDBService.find_by_template(cls.db_name, cls.table_name, template, None)
         for address in addresses:
             address['links'] = [
-                {'rel': "self", "href": f"/addresses/{address['ID']}"},
-                {'rel': "users", "href": f"/addresses/{address['ID']}/users"}
+                {'rel': "self", "href": f"/addresses/{address['addressID']}"},
+                {'rel': "users", "href": f"/addresses/{address['addressID']}/users"}
             ]
         return addresses
     
     @classmethod
     def update_address(cls, address_id, data):
-        template = {'ID': address_id}
+        template = {'addressID': address_id}
         RDBService.update(cls.db_name, cls.table_name, template, data)
         return "Successfully updated address!"
     
     @classmethod
     def delete_address(cls, address_id):
-        template = {'ID': address_id}
+        template = {'addressID': address_id}
         RDBService.delete(cls.db_name, cls.table_name, template)
         return "Successfully deleted address!"
     
