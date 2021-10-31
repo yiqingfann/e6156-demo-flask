@@ -30,7 +30,11 @@ def create_user():
 @app.route('/users', methods = ['GET'])
 @app.route('/users/<user_id>', methods = ['GET'])
 def get_users(user_id=None):
-    res = UserResource.get_users(user_id)
+    pagination = {}
+    pagination['offset'] = request.args.get('offset')
+    pagination['limit'] = request.args.get('limit')
+    fields = request.args.get('fields').split(',')
+    res = UserResource.get_users(user_id, pagination, fields)
     rsp = Response(json.dumps(res, default=str), status=200, content_type="application/json")
     return rsp
 

@@ -117,6 +117,23 @@ class RDBService:
         return res
 
     @classmethod
+    def find_by_template_and_pagination(cls, db_schema, table_name, template, pagination, field_list):
+
+        wc,args = RDBService.get_where_clause_args(template)
+
+        conn = RDBService._get_db_connection()
+        cur = conn.cursor()
+        
+        sql = f"select * from {db_schema}.{table_name} {wc} limit {pagination['limit']} offset {pagination['offset']}"
+        res = cur.execute(sql, args=args)
+        res = cur.fetchall()
+
+        conn.close()
+
+        return res
+
+
+    @classmethod
     def create(cls, db_schema, table_name, create_data):
 
         cols = []

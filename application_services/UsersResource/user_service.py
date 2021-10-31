@@ -26,14 +26,25 @@ class UserResource(BaseRDBApplicationResource):
         return msg, id
     
     @classmethod
-    def get_users(cls, user_id=None):
+    def get_users(cls, user_id=None, pagination=None, fields=None):
         template = {'userID': user_id} if user_id else None
-        users = RDBService.find_by_template(cls.db_name, cls.table_name, template, None)
-        for user in users:
-            user['links'] = [
+        data = RDBService.find_by_template_and_pagination(cls.db_name, cls.table_name, template, pagination, fields)
+        users = {}
+        users['data'] = data
+        users['links'] = [
+            {'rel': 'prev', 'href': f"/users?limit={pagination['limit']}&offset={int(pagination['offset'])-int(pagination['limit'])}"},
+            {'rel': 'self', 'href': f"/users?limit={pagination['limit']}&offset={pagination['offset']}"},
+            {'rel': 'prev', 'href': f"/users?limit={pagination['limit']}&offset={int(pagination['offset'])+int(pagination['limit'])}"},
+        ]
+
+        for i, user in enumerate(users['data']):
+            links = [
                 {'rel': "self", "href": f"/users/{user['userID']}"},
                 {'rel': "address", "href": f"/addresses/{user['addressID']}"}
             ]
+            users['data'][i] = {field: user[field] for field in fields}
+            users['data'][i]['links'] = links
+            
         return users
 
     @classmethod
