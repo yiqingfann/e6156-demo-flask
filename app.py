@@ -24,8 +24,13 @@ def hello_world():
 @app.route('/users', methods = ['POST'])
 def create_user():
     user_data = request.get_json()
-    msg, id = create_user_helper(user_data)
-    return msg
+    try:
+        msg, id = create_user_helper(user_data)
+        rsp = Response(msg, status=201)
+        rsp.headers['location'] = f"/users/{id}"
+    except:
+        rsp = Response("Integrity error, create failed.", status=422)
+    return rsp
 
 @app.route('/users', methods = ['GET'])
 @app.route('/users/<user_id>', methods = ['GET'])
@@ -42,13 +47,18 @@ def get_users(user_id=None):
 @app.route('/users/<user_id>', methods = ['PUT'])
 def update_user(user_id):
     user_data = request.get_json()
-    msg = update_user_helper(user_id, user_data)
-    return msg
+    try:
+        msg = update_user_helper(user_id, user_data)
+        rsp = Response(msg, status=200)
+    except Exception as e:
+        rsp = Response("Update failed because of bad data", status=400)
+    return rsp
 
 @app.route('/users/<user_id>', methods = ['DELETE'])
 def delete_user(user_id):
     res = UserResource.delete_user(user_id)
-    return res
+    rsp = Response(status=204)
+    return rsp
 
 @app.route('/users/<user_id>/address', methods = ['GET'])
 def get_user_address(user_id):
@@ -64,13 +74,18 @@ def create_address_for_user(user_id):
     user_data = {'addressID': addr_id}
     UserResource.update_user(user_id, user_data)
 
-    return "Successfully created address for user!"
+    rsp = Response("Successfully created address for user!", status=201)
+    rsp.headers['location'] = f"/addresses/{addr_id}"
+
+    return rsp
 
 @app.route('/addresses', methods = ['POST'])
 def create_address():
     data = request.get_json()
     msg, id = AddressResource.create_address(data)
-    return msg
+    rsp = Response(msg, status=201)
+    rsp.headers['location'] = f"/addresses/{id}"
+    return rsp
 
 @app.route('/addresses', methods = ['GET'])
 @app.route('/addresses/<address_id>', methods = ['GET'])
@@ -82,13 +97,15 @@ def get_addresses(address_id=None):
 @app.route('/addresses/<address_id>', methods = ['PUT'])
 def update_address(address_id):
     data = request.get_json()
-    res = AddressResource.update_address(address_id, data)
-    return res
+    msg = AddressResource.update_address(address_id, data)
+    rsp = Response(msg, status=200)
+    return rsp
 
 @app.route('/addresses/<address_id>', methods = ['DELETE'])
 def delete_address(address_id):
     res = AddressResource.delete_address(address_id)
-    return res
+    rsp = Response(status=204)
+    return rsp
 
 @app.route('/addresses/<address_id>/users', methods = ['GET'])
 def get_all_users_under_address(address_id):

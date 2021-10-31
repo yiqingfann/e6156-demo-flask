@@ -51,6 +51,8 @@ class UserResource(BaseRDBApplicationResource):
     @classmethod
     def update_user(cls, user_id, data):
         template = {'userID': user_id}
+        if "email" in data and "@" not in data['email']:
+            raise Exception('Invalid email')
         RDBService.update(cls.db_name, cls.table_name, template, data)
         return "Successfully updated user!"
 
