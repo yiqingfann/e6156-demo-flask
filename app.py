@@ -33,7 +33,8 @@ def get_users(user_id=None):
     pagination = {}
     pagination['offset'] = request.args.get('offset')
     pagination['limit'] = request.args.get('limit')
-    fields = request.args.get('fields').split(',')
+    fields = request.args.get('fields')
+    fields = fields.split(',') if fields else None
     res = UserResource.get_users(user_id, pagination, fields)
     rsp = Response(json.dumps(res, default=str), status=200, content_type="application/json")
     return rsp

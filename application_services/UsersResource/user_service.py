@@ -42,7 +42,8 @@ class UserResource(BaseRDBApplicationResource):
                 {'rel': "self", "href": f"/users/{user['userID']}"},
                 {'rel': "address", "href": f"/addresses/{user['addressID']}"}
             ]
-            users['data'][i] = {field: user[field] for field in fields}
+            if fields:
+                users['data'][i] = {field: user[field] for field in fields}
             users['data'][i]['links'] = links
             
         return users
