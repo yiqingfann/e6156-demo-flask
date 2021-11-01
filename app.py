@@ -127,9 +127,7 @@ def create_user_under_address(address_id):
 @app.route('/ip2location', methods = ['GET'])
 def get_user_location_from_ip():
     ip = request.remote_addr
-    print(ip)
     url = "http://api.ipstack.com/" + ip + "?access_key=42fdf1e6708a4a262416912e5af6813a"
-    print(url)
     rsp = requests.get(url).text
     return rsp
 
