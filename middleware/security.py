@@ -8,22 +8,23 @@ path_not_secure = {
     "^/users/?$": {"GET"},
     # /users/<user_id>
     # /users/<user_id>/
-    "^/users/[0-9]+/?$": {"GET"}
+    "^/users/[0-9]+/?$": {"GET"},
+    "^/login/google/?.*$": {"GET"}
 }
 
-path_not_restrict = {
-
-}
-
-admin_accounts = {
-
-}
+# path_not_restrict = {
+#
+# }
+#
+# admin_accounts = {
+#
+# }
 
 def check_security(request, google, blueprint):
     path = request.path
-
+    method = request.method
     for reg in path_not_secure:
-        if re.match(reg, path):
+        if re.match(reg, path) and method in path_not_secure[reg]:
             return True
     if not google.authorized:
         return False

@@ -6,12 +6,13 @@ from flask_dance.contrib.google import make_google_blueprint, google
 import json
 import logging
 import requests
-from application_services.imdb_artists_resource import IMDBArtistResource
+# from application_services.imdb_artists_resource import IMDBArtistResource
 from application_services.UsersResource.user_service import UserResource
 from application_services.UsersResource.address_resource import AddressResource
 # from database_services.RDBService import RDBService as RDBService
 
 from middleware.security import check_security
+from middleware.notification import notify
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
@@ -38,8 +39,10 @@ def before_request_func():
         print(result)
         return redirect(url_for("google.login"))
 
-# @app.after_request
-# def after_request_func(response):
+@app.after_request
+def after_request_func(response):
+    notify(request, response)
+    return response
 
 # ------------------- routing functions -------------------
 
