@@ -2,7 +2,7 @@ from flask import Flask, Response, request
 from flask_cors import CORS
 import json
 import logging
-
+import requests
 from application_services.imdb_artists_resource import IMDBArtistResource
 from application_services.UsersResource.user_service import UserResource
 from application_services.UsersResource.address_resource import AddressResource
@@ -123,6 +123,13 @@ def create_user_under_address(address_id):
     msg = update_user_helper(user_id, user_data)
     
     return "Successfully created user under address!"
+
+@app.route('/ip2location', methods = ['GET'])
+def get_user_location_from_ip():
+    ip = request.remote_addr
+    url = "http://api.ipstack.com/" + ip + "?access_key=42fdf1e6708a4a262416912e5af6813a"
+    rsp = requests.get(url).text
+    return rsp
 
 # ------------------- helper functions -------------------
 
