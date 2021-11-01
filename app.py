@@ -1,12 +1,17 @@
-from flask import Flask, Response, request
+import os
+
+from flask import Flask, Response, request, redirect, url_for
 from flask_cors import CORS
+from flask_dance.contrib.google import make_google_blueprint, google
 import json
 import logging
 import requests
 from application_services.imdb_artists_resource import IMDBArtistResource
 from application_services.UsersResource.user_service import UserResource
 from application_services.UsersResource.address_resource import AddressResource
-from database_services.RDBService import RDBService as RDBService
+# from database_services.RDBService import RDBService as RDBService
+
+from middleware.security import check_security
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
@@ -14,6 +19,27 @@ logger.setLevel(logging.INFO)
 
 app = Flask(__name__)
 CORS(app)
+app.secret_key = "supersekrit"
+blueprint = make_google_blueprint(
+    client_id="118412287260-mhe3b17k080n7dfdlctsgjkshqleit84.apps.googleusercontent.com",
+    client_secret="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",
+    scope=["profile", "email"],
+    reprompt_consent=True
+)
+
+app.register_blueprint(blueprint, url_prefix="/login")
+g_bp = app.blueprints.get("google")
+# ------------------- Before/After Request ----------------
+@app.before_request
+def before_request_func():
+    print("before request\n")
+    result = check_security(request, google, g_bp)
+    if not result:
+        print(result)
+        return redirect(url_for("google.login"))
+
+# @app.after_request
+# def after_request_func(response):
 
 # ------------------- routing functions -------------------
 
@@ -121,7 +147,7 @@ def create_user_under_address(address_id):
 
     user_data = {'addressID': address_id}
     msg = update_user_helper(user_id, user_data)
-    
+
     return "Successfully created user under address!"
 
 @app.route('/ip2location', methods = ['GET'])
